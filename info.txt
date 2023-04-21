@@ -1,4 +1,5 @@
 -------------- Ex 2 ------------------
+
 2.1.
 	2.1.1 np.genfromtxt lê e guarda num array
 	2.1.2 normalizar usando, normalization min max p.99
@@ -21,3 +22,23 @@
 	colocar tudo na mesma pasta (as 900 musicas), valores podem nao ser exatos
 
 2.3.	fazer nas semanas finais (opcional) 
+
+
+-------------- Ex 3 ------------------
+
+3.1.
+3.2.???
+
+	bota o bigode na minha xotaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	p.197, 201, 207
+	funçoes de distancias no scypy, numpy (prof recomenda fazer à mao)
+	matriz de distancia 900x900 dá para otimizar ([1][2] == [2][1]) 
+	distancia da musica a ela propria é -1 ([1][1])
+
+3.3.
+
+	3 matrizes de similaridade ???? e depois os 6 rankings 
+	numpy.argsort (devolve os indices correspondente à ordenação) 
+
+	(Teorica) As features sao os objetos que vao captar o conteudo das musicas, logo influenciam mais do que as distancias
+	ver a percentagem de musicas comuns aos (2?? "vi no pc do lado") rankings
