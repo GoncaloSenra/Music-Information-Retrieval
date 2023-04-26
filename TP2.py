@@ -9,8 +9,11 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    pass
+    features = np.genfromtxt('Features_Audio_MER/top100_features.csv', delimiter = ',')
 
+    features = np.nan_to_num(features, nan=0)
+
+    print(features)
 
 if __name__ == '__main__':
     main()
