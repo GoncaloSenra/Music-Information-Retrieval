@@ -49,103 +49,110 @@ def extrairFeatures(nomesMusicas):
     hopL = 23.22
     freqMin = 20
     freqMax = 11025
-    
-    nomesQ = np.array(['Q1','Q2','Q3','Q4'])
 
+    quadrants = np.genfromtxt('MER_audio_taffc_dataset\\panda_dataset_taffc_annotations.csv',dtype = str, delimiter = ',')
+
+    quadrants = np.delete(quadrants,0,0)
+    #statistics = np.zeros((900, 190))
     statistics = np.zeros((900, 190))
 
     num_music = 0
     num_stats = 7
     num = 1
-    for queryName in nomesQ:
-        for music in os.listdir('MER_audio_taffc_dataset\\' + queryName):
-            print('Music: '+str(num) + ' / 900')
-            #nomeMus = nomeMus[1:-1]
-            #caminho = 'MER_audio_taffc_dataset\\' + queryName +'\\' + nomeMus +'.mp3'
-            #print(caminho)
 
-            caminho = 'MER_audio_taffc_dataset\\' + queryName + '\\' + music
+    for music in quadrants:
+        print('Music: '+str(num) + ' / 900')
+        #nomeMus = nomeMus[1:-1]
+        #caminho = 'MER_audio_taffc_dataset\\' + queryName +'\\' + nomeMus +'.mp3'
+        #print(caminho)
 
-            y = librosa.load(caminho, sr=sr, mono = True)
+        caminho = 'MER_audio_taffc_dataset\\' + music[1] + '\\' + music[0] + '.mp3'
+        #print(caminho)
 
-            #features espectrais
+        y = librosa.load(caminho, sr=sr, mono = True)
 
-            #mfcc
-            mfcc = librosa.feature.mfcc(y = y[0], n_mfcc = 13, hop_length = int(hopL))
-            
-            #mfcc = mfcc[0, :]
-            i = 0
-            for i in range(mfcc.shape[0]):
-                statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(mfcc[i, :])
-                
-            #print(i)
-            i += 1
-            #spectral centroid
-            specCen = librosa.feature.spectral_centroid(y = y[0], hop_length = int(hopL))
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(specCen[0, :])
-            
-            #print(i)
-            i += 1
-            #spectral bandwidth
-            specBand = librosa.feature.spectral_bandwidth(y=y[0])
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(specBand[0, :])
+        #features espectrais
 
-            #print(i)
-            i += 1
-            #spectral costrast
-            spectralContr = librosa.feature.spectral_contrast(y=y[0])
-            j = i
-            for i in range(j, spectralContr.shape[0] + j):
-                statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralContr[i - j, :])
-            
+        #mfcc
+        mfcc = librosa.feature.mfcc(y = y[0], n_mfcc = 13, hop_length = int(hopL))
+        
+        #mfcc = mfcc[0, :]
+        i = 0
+        for i in range(mfcc.shape[0]):
+            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(mfcc[i, :])
+        
+        #print(statistics[num_music, 0 * num_stats : 0 * num_stats + num_stats])
+        #print(normalizar(statistics))
+        #print(i)
+        i += 1
+        #spectral centroid
+        specCen = librosa.feature.spectral_centroid(y = y[0], hop_length = int(hopL))
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(specCen[0, :])
+        
+        #print(i)
+        i += 1
+        #spectral bandwidth
+        specBand = librosa.feature.spectral_bandwidth(y=y[0])
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(specBand[0, :])
 
-            #i = j
-            #print(i)
-            i += 1
-            #spectral flatness
-            spectralFlat = librosa.feature.spectral_flatness(y=y[0])
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralFlat[0, :])
+        #print(i)
+        i += 1
+        #spectral costrast
+        spectralContr = librosa.feature.spectral_contrast(y=y[0])
+        j = i
+        for i in range(j, spectralContr.shape[0] + j):
+            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralContr[i - j, :])
+        
 
-            #print(i)
-            i += 1
-            #spectral rolloff
-            spectralRoll = librosa.feature.spectral_rolloff(y=y[0])
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralRoll[0, :])
+        #i = j
+        #print(i)
+        i += 1
+        #spectral flatness
+        spectralFlat = librosa.feature.spectral_flatness(y=y[0])
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralFlat[0, :])
 
-            #features temporais
+        #print(i)
+        i += 1
+        #spectral rolloff
+        spectralRoll = librosa.feature.spectral_rolloff(y=y[0])
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(spectralRoll[0, :])
 
-            #print(i)
-            i += 1
-            #yin
-            F0 = librosa.yin(y=y[0], fmin=freqMin, fmax=freqMax)
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(F0)
+        #features temporais
 
-            #print(i)
-            i += 1
-            #RMS
-            RMS = librosa.feature.rms(y=y[0])
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(RMS[0, :])
+        #print(i)
+        i += 1
+        #yin
+        F0 = librosa.yin(y=y[0], fmin=freqMin, fmax=freqMax)
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(F0)
 
-            #print(i)
-            i += 1
-            #zero crossing rate
-            zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y[0])
-            statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(zero_crossing_rate[0, :])
+        #print(i)
+        i += 1
+        #RMS
+        RMS = librosa.feature.rms(y=y[0])
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(RMS[0, :])
 
-            #outras features 
+        #print(i)
+        i += 1
+        #zero crossing rate
+        zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y[0])
+        statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(zero_crossing_rate[0, :])
 
-            #print(i)
-            i += 1
-            #tempo
-            tempo = librosa.feature.rhythm.tempo(y=y[0])
-            statistics[num_music, i * num_stats] = tempo[0]
+        #outras features 
 
-            num_music = num_music + 1
-            num+=1
+        #print(i)
+        i += 1
+        #tempo
+        tempo = librosa.feature.rhythm.tempo(y=y[0])
+        statistics[num_music, i * num_stats] = tempo[0]
 
+        num_music = num_music + 1
+        num+=1
+
+    #np.savetxt('teste.csv',normalizar(statistics), delimiter=',')
+    
+    np.savetxt('statistics.csv', statistics, fmt = "%lf", delimiter=',')
     statisticsN = normalizar(statistics)
-
-    np.savetxt('statisticsN.csv', statisticsN, delimiter=',')
+    np.savetxt('statisticsN.csv', statisticsN, fmt = "%lf", delimiter=',')
 
 
 
