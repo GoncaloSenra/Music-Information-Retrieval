@@ -10,6 +10,88 @@ import os
 
 
 def main():
+    
+    #featuresN = guardaTop100Features()
+    #statisticsN = extrairFeatures()
+
+    featuresN = np.genfromtxt('featuresN.csv', dtype = float, delimiter = ',')
+
+    statisticsN = np.genfromtxt('statisticsN.csv', dtype = float, delimiter = ',')
+
+    similaridade(featuresN, statisticsN)
+
+def similaridade(featuresN, statisticsN):
+    
+    statsEuc = np.zeros((900, 900))
+    statsMan = np.zeros((900, 900))
+    statsCos = np.zeros((900, 900))
+    featEuc = np.zeros((900, 900))
+    featMan = np.zeros((900, 900))
+    featCos = np.zeros((900, 900))
+
+    k = 0
+    for i in range(0, 900):
+        for j in range(k, 900):
+            if i == j:
+                statsEuc[i, j] = -1
+                statsMan[i, j] = -1
+                statsCos[i, j] = -1
+                featEuc[i, j] = -1
+                featMan[i, j] = -1
+                featCos[i, j] = -1
+            else: 
+                statsEuc[i, j] = statsEuc[j, i] = euclidiana(statisticsN, i, j)
+                statsMan[i, j] = statsMan[j, i] = manhatten(statisticsN, i, j)
+                statsCos[i, j] = statsCos[j, i] = cosseno(statisticsN, i, j)
+                featEuc[i, j]  = featEuc[j, i] = euclidiana(featuresN, i, j)
+                featMan[i, j]  = featMan[j, i] = manhatten(featuresN, i, j)
+                featCos[i, j]  = featCos[j, i] = cosseno(featuresN, i, j)
+
+        k += 1
+
+    np.savetxt('statsEuc.csv', statsEuc, fmt="%lf", delimiter=',')
+    np.savetxt('statsMan.csv', statsMan, fmt="%lf", delimiter=',')
+    np.savetxt('statsCos.csv', statsCos, fmt="%lf", delimiter=',')
+    np.savetxt('featEuc.csv', featEuc, fmt="%lf", delimiter=',')
+    np.savetxt('featMan.csv', featMan, fmt="%lf", delimiter=',')
+    np.savetxt('featCos.csv', featCos, fmt="%lf", delimiter=',')
+    
+
+def euclidiana(matriz, i, j):
+    sum = 0
+    for k in range(matriz.shape[1]):
+        sum += np.power(matriz[i, k] - matriz[j, k], 2)
+
+    sum = np.sqrt(sum)
+
+    return sum
+    
+
+def manhatten(matriz, i, j):
+    sum = 0
+    for k in range(matriz.shape[1]):
+        sum += np.abs(matriz[i, k] - matriz[j, k])
+
+    return sum
+    
+
+def cosseno(matriz, i, j):
+    sum = 0
+    sum1 = 0
+    sum2 = 0
+    for k in range(matriz.shape[1]):
+        sum += matriz[i, k] * matriz[j, k]
+        sum1 += np.power(matriz[i, k], 2)
+        sum2 += np.power(matriz[j, k], 2)
+
+    sum1 = np.sqrt(sum1)
+    sum2 = np.sqrt(sum2)
+
+    sum = 1 - (sum/(sum1 * sum2))
+
+    return sum
+
+def guardaTop100Features():
     features = np.genfromtxt('Features - Audio MER\\top100_features.csv',dtype = str, delimiter = ',')
     features = np.delete(features,0,0) #apagar a primeira linha
     nomesMusicas = features[:, 0] #primeira coluna = nomes das musicas
@@ -22,8 +104,9 @@ def main():
 
     #print(featuresN)
     #print(nomesMusicas)
-    np.savetxt('featuresN.csv', featuresN, delimiter=',') #salvar matriz normalizada num excel
-    extrairFeatures(nomesMusicas)
+    np.savetxt('featuresN.csv', featuresN, fmt="%lf", delimiter=',') #salvar matriz normalizada num excel
+    return featuresN
+
 
 #correr a matriz linha a linha, obter o max e min de cada coluna e aplicar a formula caso n sejam iguais
 def normalizar(matriz):
@@ -43,7 +126,7 @@ def normalizar(matriz):
 def stats(feat):
     return np.array([np.mean(feat), np.std(feat), sc.skew(feat), sc.kurtosis(feat), np.median(feat), np.max(feat), np.min(feat)])
 
-def extrairFeatures(nomesMusicas):
+def extrairFeatures():
     sr = 22050
     windowL = frameL = 92.88
     hopL = 23.22
@@ -154,6 +237,7 @@ def extrairFeatures(nomesMusicas):
     statisticsN = normalizar(statistics)
     np.savetxt('statisticsN.csv', statisticsN, fmt = "%lf", delimiter=',')
 
+    return statisticsN
 
 
 if __name__ == '__main__':
