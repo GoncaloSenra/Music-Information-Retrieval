@@ -12,13 +12,73 @@ import os
 def main():
     
     #featuresN = guardaTop100Features()
+
     #statisticsN = extrairFeatures()
+    
 
     featuresN = np.genfromtxt('featuresN.csv', dtype = float, delimiter = ',')
 
     statisticsN = np.genfromtxt('statisticsN.csv', dtype = float, delimiter = ',')
 
     similaridade(featuresN, statisticsN)
+    statsEuc = np.genfromtxt('statsEuc.csv', dtype = float, delimiter = ',')
+    statsMan = np.genfromtxt('statsMan.csv', dtype = float, delimiter = ',')
+    statsCos = np.genfromtxt('statsCos.csv', dtype = float, delimiter = ',')
+    featEuc = np.genfromtxt('featEuc.csv', dtype = float, delimiter = ',')
+    featMan = np.genfromtxt('featMan.csv', dtype = float, delimiter = ',')
+    featCos = np.genfromtxt('featCos.csv', dtype = float, delimiter = ',')
+
+    rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos)
+
+
+def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos):
+
+    quadrants = np.genfromtxt('MER_audio_taffc_dataset\\panda_dataset_taffc_annotations.csv',dtype = str, delimiter = ',')
+    quadrants = np.delete(quadrants,0,0)
+
+    querys = ['MT0000202045', 'MT0000379144', 'MT0000414517', 'MT0000956340']
+
+    for i in querys:
+        for j in range(quadrants.shape[0]):
+            if quadrants[j, 0] == i:
+                
+                rankEucStatsidx = np.argsort(statsEuc[j, :])
+                rankManStatsidx = np.argsort(statsMan[j, :])
+                rankCosStatsidx = np.argsort(statsCos[j, :])
+                rankEucFeatidx = np.argsort(featEuc[j, :])
+                rankManFeatidx = np.argsort(featMan[j, :])
+                rankCosFeatidx = np.argsort(featCos[j, :])
+
+                #print(rankEucStatsidx)
+
+                rankEucStats = np.zeros(20, dtype='U256')
+                rankManStats = np.zeros(20, dtype='U256')   
+                rankCosStats = np.zeros(20, dtype='U256')
+                rankEucFeat = np.zeros(20, dtype='U256')
+                rankManFeat = np.zeros(20, dtype='U256')              
+                rankCosFeat = np.zeros(20, dtype='U256')
+
+
+                #print(rankEucStatsidx[0 : 20])
+
+                for k in range(20):
+                    rankEucStats[k] = quadrants[rankEucStatsidx[k], 0]
+                    rankManStats[k] = quadrants[rankManStatsidx[k], 0]
+                    rankCosStats[k] = quadrants[rankCosStatsidx[k], 0]
+                    rankEucFeat[k] = quadrants[rankEucFeatidx[k], 0]
+                    rankManFeat[k] = quadrants[rankManFeatidx[k], 0]
+                    rankCosFeat[k] = quadrants[rankCosFeatidx[k], 0]
+
+                print("Query = " + i)
+
+                print('Ranking: FMrosa, Euclidean')
+                print(rankEucStats)
+
+            
+                break
+            
+                
+
 
 def similaridade(featuresN, statisticsN):
     
@@ -40,6 +100,8 @@ def similaridade(featuresN, statisticsN):
                 featMan[i, j] = -1
                 featCos[i, j] = -1
             else: 
+                
+                statsMan[i, j] = statsMan[j, i] =  np.linalg.norm(statisticsN[i, :] - statisticsN[j, :], ord=1)
                 statsEuc[i, j] = statsEuc[j, i] = euclidiana(statisticsN, i, j)
                 statsMan[i, j] = statsMan[j, i] = manhatten(statisticsN, i, j)
                 statsCos[i, j] = statsCos[j, i] = cosseno(statisticsN, i, j)
@@ -55,7 +117,7 @@ def similaridade(featuresN, statisticsN):
     np.savetxt('featEuc.csv', featEuc, fmt="%lf", delimiter=',')
     np.savetxt('featMan.csv', featMan, fmt="%lf", delimiter=',')
     np.savetxt('featCos.csv', featCos, fmt="%lf", delimiter=',')
-    
+
 
 def euclidiana(matriz, i, j):
     sum = 0
@@ -63,7 +125,7 @@ def euclidiana(matriz, i, j):
         sum += np.power(matriz[i, k] - matriz[j, k], 2)
 
     sum = np.sqrt(sum)
-
+    
     return sum
     
 

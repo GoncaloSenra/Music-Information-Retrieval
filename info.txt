@@ -37,7 +37,7 @@
 
 3.3.
 
-	3 matrizes de similaridade ???? e depois os 6 rankings 
+	6 matrizes de similaridade e depois os 6 rankings 
 	numpy.argsort (devolve os indices correspondente à ordenação) 
 
 	(Teorica) As features sao os objetos que vao captar o conteudo das musicas, logo influenciam mais do que as distancias
