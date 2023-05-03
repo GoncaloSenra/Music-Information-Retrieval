@@ -28,11 +28,12 @@ def main():
     featMan = np.genfromtxt('featMan.csv', dtype = float, delimiter = ',')
     featCos = np.genfromtxt('featCos.csv', dtype = float, delimiter = ',')
 
-    rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos)
+    #metaSim = simildaridadeMetadados()
+    metaSim = np.genfromtxt('metadataSim.csv', dtype = int, delimiter = ',')
 
+    rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos, metaSim)
 
-def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos):
-
+def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos, metaSim):
 
     querys = ['MT0000202045.mp3', 'MT0000379144.mp3', 'MT0000414517.mp3', 'MT0000956340.mp3']
 
@@ -40,18 +41,23 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos)
     files = np.array(files)
     files.sort()
 
-    for i in querys:
+    der = np.zeros(len(querys))
+    dmr = np.zeros(len(querys))
+    dcr = np.zeros(len(querys))
 
-        j = np.where(files == i)        
-        
+    for i in np.arange(len(querys)):
+        #if i != 'MT0000414517.mp3':
+            #continue
+        j = np.where(files == querys[i])        
+
         rankEucStatsidx = np.argsort(statsEuc[j, :])
         rankManStatsidx = np.argsort(statsMan[j, :])
         rankCosStatsidx = np.argsort(statsCos[j, :])
         rankEucFeatidx = np.argsort(featEuc[j, :])
         rankManFeatidx = np.argsort(featMan[j, :])
         rankCosFeatidx = np.argsort(featCos[j, :])
+        rankMetadataidx = np.argsort(metaSim[j, :])[0, 0, ::-1]
 
-        #print(rankEucStatsidx)
 
         rankEucStats = np.zeros(21, dtype='U256')
         rankManStats = np.zeros(21, dtype='U256')   
@@ -59,7 +65,9 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos)
         rankEucFeat = np.zeros(21, dtype='U256')
         rankManFeat = np.zeros(21, dtype='U256')              
         rankCosFeat = np.zeros(21, dtype='U256')
+        rankMetadata = np.zeros(21, dtype='U256')
 
+        rankMetadataValues = np.zeros(21)
 
         #print(rankEucStatsidx[0 : 20])
 
@@ -67,22 +75,95 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos)
             #print(rankEucStatsidx[0, 0, k])
             #print(files[rankEucStatsidx[k]])
             rankEucStats[k] = files[rankEucStatsidx[0, 0, k]]
-            rankManStats[k] = files[rankEucStatsidx[0, 0, k]]
-            rankCosStats[k] = files[rankEucStatsidx[0, 0, k]]
-            rankEucFeat[k] = files[rankEucStatsidx[0, 0, k]]
-            rankManFeat[k] = files[rankEucStatsidx[0, 0, k]]
-            rankCosFeat[k] = files[rankEucStatsidx[0, 0, k]]
+            rankManStats[k] = files[rankManStatsidx[0, 0, k]]
+            rankCosStats[k] = files[rankCosStatsidx[0, 0, k]]
+            rankEucFeat[k] = files[rankEucFeatidx[0, 0, k]]
+            rankManFeat[k] = files[rankManFeatidx[0, 0, k]]
+            rankCosFeat[k] = files[rankCosFeatidx[0, 0, k]]
+            rankMetadata[k] = files[rankMetadataidx[k]]
+            rankMetadataValues[k] = metaSim[j, rankMetadataidx[k]]
+            
 
-        print("Query = " + i)
+        print("Query = " + querys[i])
 
         print('Ranking: FMrosa, Euclidean')
         print(rankEucStats)
 
-    
-        break
-            
-                
+        print('Ranking: Metadata')
+        print(rankMetadata)
 
+        print('Score metadata = ' + str(rankMetadataValues.astype(float)))
+
+        for l in np.arange(rankMetadata.shape[0]):
+            if rankMetadata[l] in rankEucStats:
+                der[i] += 1
+
+            if rankMetadata[l] in rankManStats:
+                dmr[i] += 1
+
+            if rankMetadata[l] in rankCosStats:
+                dcr[i] += 1
+
+        der[i] = ((der[i] - 1) / 20) * 100
+        dmr[i] = ((dmr[i] - 1) / 20) * 100
+        dcr[i] = ((dcr[i] - 1) / 20) * 100
+        
+    
+    print('DER = ' + str(der))
+    print('DMR = ' + str(dmr))
+    print('DCR = ' + str(dcr))
+
+        
+
+# Features em comum 
+def simildaridadeMetadados():
+    # Artist, Quadrant, MoodsStrSplit e GenresStr
+    metadata = np.genfromtxt('MER_audio_taffc_dataset\\panda_dataset_taffc_metadata.csv',dtype = str, delimiter = ',')
+
+    artistidx = np.where(metadata[0, :] == '\"Artist\"')
+    quadidx = np.where(metadata[0, :] == '\"Quadrant\"')
+    moodidx = np.where(metadata[0, :] == '\"MoodsStrSplit\"')
+    genreidx = np.where(metadata[0, :] == '\"GenresStr\"')
+
+    metadata = metadata[1:, :]
+
+    metaSim = np.zeros((900, 900))
+
+    for i in np.arange(900):
+        for j in np.arange(900):
+            print("i = " + str(i) + " j = " + str(j))
+            if i == j:
+                metaSim[i, j] += 2
+                
+                auxMood = np.array(metadata[i, moodidx][0][0].strip('\"').split('; '))
+                metaSim[i, j] += len(auxMood)
+
+                auxGenre = np.array(metadata[i, genreidx][0][0].strip('\"').split('; '))
+                metaSim[i, j] += len(auxGenre)
+
+            else:
+                if metadata[i, artistidx] == metadata[j, artistidx]:
+                    metaSim[i, j] += 1
+                if metadata[i, quadidx] == metadata[j, quadidx]:
+                    metaSim[i, j] += 1
+            
+                auxMood = np.array(metadata[i, moodidx][0][0].strip('\"').split('; '))
+                auxMood2 = np.array(metadata[j, moodidx][0][0].strip('\"').split('; '))
+
+                for k in auxMood:
+                    if k in auxMood2:
+                        metaSim[i, j] += 1
+
+                auxGenre = np.array(metadata[i, genreidx][0][0].strip('\"').split('; '))
+                auxGenre2 = np.array(metadata[j, genreidx][0][0].strip('\"').split('; '))
+
+                for k in auxGenre:
+                    if k in auxGenre2:
+                        metaSim[i, j] += 1
+
+    np.savetxt('metadataSim.csv', metaSim, fmt="%d", delimiter = ',')
+
+    return metaSim
 
 def similaridade(featuresN, statisticsN):
     
