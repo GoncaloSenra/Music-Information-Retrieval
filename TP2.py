@@ -20,7 +20,7 @@ def main():
 
     statisticsN = np.genfromtxt('statisticsN.csv', dtype = float, delimiter = ',')
 
-    similaridade(featuresN, statisticsN)
+    #similaridade(featuresN, statisticsN)
     statsEuc = np.genfromtxt('statsEuc.csv', dtype = float, delimiter = ',')
     statsMan = np.genfromtxt('statsMan.csv', dtype = float, delimiter = ',')
     statsCos = np.genfromtxt('statsCos.csv', dtype = float, delimiter = ',')
@@ -33,49 +33,53 @@ def main():
 
 def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos):
 
-    quadrants = np.genfromtxt('MER_audio_taffc_dataset\\panda_dataset_taffc_annotations.csv',dtype = str, delimiter = ',')
-    quadrants = np.delete(quadrants,0,0)
 
-    querys = ['MT0000202045', 'MT0000379144', 'MT0000414517', 'MT0000956340']
+    querys = ['MT0000202045.mp3', 'MT0000379144.mp3', 'MT0000414517.mp3', 'MT0000956340.mp3']
+
+    files = os.listdir('MER_audio_taffc_dataset\\musics')
+    files = np.array(files)
+    files.sort()
 
     for i in querys:
-        for j in range(quadrants.shape[0]):
-            if quadrants[j, 0] == i:
-                
-                rankEucStatsidx = np.argsort(statsEuc[j, :])
-                rankManStatsidx = np.argsort(statsMan[j, :])
-                rankCosStatsidx = np.argsort(statsCos[j, :])
-                rankEucFeatidx = np.argsort(featEuc[j, :])
-                rankManFeatidx = np.argsort(featMan[j, :])
-                rankCosFeatidx = np.argsort(featCos[j, :])
 
-                #print(rankEucStatsidx)
+        j = np.where(files == i)        
+        
+        rankEucStatsidx = np.argsort(statsEuc[j, :])
+        rankManStatsidx = np.argsort(statsMan[j, :])
+        rankCosStatsidx = np.argsort(statsCos[j, :])
+        rankEucFeatidx = np.argsort(featEuc[j, :])
+        rankManFeatidx = np.argsort(featMan[j, :])
+        rankCosFeatidx = np.argsort(featCos[j, :])
 
-                rankEucStats = np.zeros(20, dtype='U256')
-                rankManStats = np.zeros(20, dtype='U256')   
-                rankCosStats = np.zeros(20, dtype='U256')
-                rankEucFeat = np.zeros(20, dtype='U256')
-                rankManFeat = np.zeros(20, dtype='U256')              
-                rankCosFeat = np.zeros(20, dtype='U256')
+        #print(rankEucStatsidx)
+
+        rankEucStats = np.zeros(21, dtype='U256')
+        rankManStats = np.zeros(21, dtype='U256')   
+        rankCosStats = np.zeros(21, dtype='U256')
+        rankEucFeat = np.zeros(21, dtype='U256')
+        rankManFeat = np.zeros(21, dtype='U256')              
+        rankCosFeat = np.zeros(21, dtype='U256')
 
 
-                #print(rankEucStatsidx[0 : 20])
+        #print(rankEucStatsidx[0 : 20])
 
-                for k in range(20):
-                    rankEucStats[k] = quadrants[rankEucStatsidx[k], 0]
-                    rankManStats[k] = quadrants[rankManStatsidx[k], 0]
-                    rankCosStats[k] = quadrants[rankCosStatsidx[k], 0]
-                    rankEucFeat[k] = quadrants[rankEucFeatidx[k], 0]
-                    rankManFeat[k] = quadrants[rankManFeatidx[k], 0]
-                    rankCosFeat[k] = quadrants[rankCosFeatidx[k], 0]
+        for k in range(21):
+            #print(rankEucStatsidx[0, 0, k])
+            #print(files[rankEucStatsidx[k]])
+            rankEucStats[k] = files[rankEucStatsidx[0, 0, k]]
+            rankManStats[k] = files[rankEucStatsidx[0, 0, k]]
+            rankCosStats[k] = files[rankEucStatsidx[0, 0, k]]
+            rankEucFeat[k] = files[rankEucStatsidx[0, 0, k]]
+            rankManFeat[k] = files[rankEucStatsidx[0, 0, k]]
+            rankCosFeat[k] = files[rankEucStatsidx[0, 0, k]]
 
-                print("Query = " + i)
+        print("Query = " + i)
 
-                print('Ranking: FMrosa, Euclidean')
-                print(rankEucStats)
+        print('Ranking: FMrosa, Euclidean')
+        print(rankEucStats)
 
-            
-                break
+    
+        break
             
                 
 
@@ -101,7 +105,7 @@ def similaridade(featuresN, statisticsN):
                 featCos[i, j] = -1
             else: 
                 
-                statsMan[i, j] = statsMan[j, i] =  np.linalg.norm(statisticsN[i, :] - statisticsN[j, :], ord=1)
+                #statsMan[i, j] = statsMan[j, i] =  np.linalg.norm(statisticsN[i, :] - statisticsN[j, :], ord=1)
                 statsEuc[i, j] = statsEuc[j, i] = euclidiana(statisticsN, i, j)
                 statsMan[i, j] = statsMan[j, i] = manhatten(statisticsN, i, j)
                 statsCos[i, j] = statsCos[j, i] = cosseno(statisticsN, i, j)
@@ -155,11 +159,9 @@ def cosseno(matriz, i, j):
 
 def guardaTop100Features():
     features = np.genfromtxt('Features - Audio MER\\top100_features.csv',dtype = str, delimiter = ',')
-    features = np.delete(features,0,0) #apagar a primeira linha
-    nomesMusicas = features[:, 0] #primeira coluna = nomes das musicas
-    features = np.delete(features,0,1) #apagar a primeira coluna
-    features = np.delete(features,100,1) #apagar a ultima coluna
-    
+
+    features = features[1:, 1:101]
+
     featuresF = features.astype(float)
     #features = np.nan_to_num(features, nan=0)
     featuresN = normalizar(featuresF) #normalizar a funcao
@@ -172,9 +174,9 @@ def guardaTop100Features():
 
 #correr a matriz linha a linha, obter o max e min de cada coluna e aplicar a formula caso n sejam iguais
 def normalizar(matriz):
-    matrizN = np.full_like(matriz,1)
 
-    for i in range(len(matriz[0])):
+    matrizN = np.zeros(matriz.shape)
+    for i in np.arange(matrizN.shape[1]):
         max = np.max(matriz[:, i])
         min = np.min(matriz[:, i])
 
@@ -184,7 +186,7 @@ def normalizar(matriz):
             matrizN[:, i] = (0 + (matriz[:, i] - min)*(1 - 0))/(max - min)
 
     return matrizN
-    
+
 def stats(feat):
     return np.array([np.mean(feat), np.std(feat), sc.skew(feat), sc.kurtosis(feat), np.median(feat), np.max(feat), np.min(feat)])
 
@@ -195,23 +197,23 @@ def extrairFeatures():
     freqMin = 20
     freqMax = 11025
 
-    quadrants = np.genfromtxt('MER_audio_taffc_dataset\\panda_dataset_taffc_annotations.csv',dtype = str, delimiter = ',')
+    files = os.listdir('MER_audio_taffc_dataset\\musics')
+    files = np.array(files)
+    files.sort()
 
-    quadrants = np.delete(quadrants,0,0)
-    #statistics = np.zeros((900, 190))
     statistics = np.zeros((900, 190))
 
     num_music = 0
     num_stats = 7
     num = 1
 
-    for music in quadrants:
-        print('Music: '+str(num) + ' / 900')
+    for music in files:
+        print('Music: '+ str(num) + ' / 900')
         #nomeMus = nomeMus[1:-1]
         #caminho = 'MER_audio_taffc_dataset\\' + queryName +'\\' + nomeMus +'.mp3'
         #print(caminho)
 
-        caminho = 'MER_audio_taffc_dataset\\' + music[1] + '\\' + music[0] + '.mp3'
+        caminho = 'MER_audio_taffc_dataset\\musics\\' + music
         #print(caminho)
 
         y = librosa.load(caminho, sr=sr, mono = True)
@@ -219,7 +221,7 @@ def extrairFeatures():
         #features espectrais
 
         #mfcc
-        mfcc = librosa.feature.mfcc(y = y[0], n_mfcc = 13, hop_length = int(hopL))
+        mfcc = librosa.feature.mfcc(y = y[0], n_mfcc = 13)
         
         #mfcc = mfcc[0, :]
         i = 0
@@ -231,7 +233,7 @@ def extrairFeatures():
         #print(i)
         i += 1
         #spectral centroid
-        specCen = librosa.feature.spectral_centroid(y = y[0], hop_length = int(hopL))
+        specCen = librosa.feature.spectral_centroid(y = y[0])
         statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(specCen[0, :])
         
         #print(i)
@@ -268,6 +270,7 @@ def extrairFeatures():
         i += 1
         #yin
         F0 = librosa.yin(y=y[0], fmin=freqMin, fmax=freqMax)
+        F0[F0 == freqMax] = 0
         statistics[num_music, i * num_stats : i * num_stats + num_stats] = stats(F0)
 
         #print(i)

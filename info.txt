@@ -28,8 +28,6 @@
 
 3.1.
 3.2.???
-
-	bota o bigode na minha xotaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 	p.197, 201, 207
 	funçoes de distancias no scypy, numpy (prof recomenda fazer à mao)
 	matriz de distancia 900x900 dá para otimizar ([1][2] == [2][1]) 
@@ -42,3 +40,30 @@
 
 	(Teorica) As features sao os objetos que vao captar o conteudo das musicas, logo influenciam mais do que as distancias
 	ver a percentagem de musicas comuns aos (2?? "vi no pc do lado") rankings
+
+
+-------------- Ex 4 ------------------
+
+similaridade com base nos metadados (emoçoes em comum + estilo de musica (acho))
+matriz simildaridade 900x900 com pontos em comum
+
+as musicas quando comparadas com elas mesmas dão o numero de tags
+
+4.1.3 
+
+	para cada um dos 6 rankings do ex 3, calcular a metrica precision 
+ 	oredenar por ordem decrescente 
+
+	ver numero de coincidencias entre a matriz renking FMrosa x e a matriz ranking metadata e a media
+
+4.1.4
+	todos os rankings + precisao para todas as querys 
+	a referencia perfeita sao os metadados? (há problemas: o ranking é muito centrado nas emoçoes e o FMrosa nao capta emoçoes (aprofundar))
+	foram pessoas a escolher as emoçoes por isso os metadados sao imperfeitos (porque as pessoas tem mau gosto)
+
+	Avaliaçao  subjetiva: cada elemento do grupo vai avaliar as musicas escala de Likert
+		slides p. 223 (20 docs) contruir tabela 4 querys (80 musicas :( RIP)
+		acima de 2.5 é relevante 
+		mesma coisa com o rankng dos metadados
+
+	Qual o melhor ranking? É subjetivo 
