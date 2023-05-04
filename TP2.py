@@ -45,9 +45,12 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos,
     dmr = np.zeros(len(querys))
     dcr = np.zeros(len(querys))
 
+    fer = np.zeros(len(querys))
+    fmr = np.zeros(len(querys))
+    fcr = np.zeros(len(querys))
+
     for i in np.arange(len(querys)):
-        #if i != 'MT0000414517.mp3':
-            #continue
+
         j = np.where(files == querys[i])        
 
         rankEucStatsidx = np.argsort(statsEuc[j, :])
@@ -83,11 +86,31 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos,
             rankMetadata[k] = files[rankMetadataidx[k]]
             rankMetadataValues[k] = metaSim[j, rankMetadataidx[k]]
             
+        
 
         print("Query = " + querys[i])
 
         print('Ranking: FMrosa, Euclidean')
         print(rankEucStats)
+
+        print('Ranking: FMrosa, Cosine')
+        print(rankCosStats)
+
+        print('Ranking: FMrosa, Manhattan')
+        print(rankManStats)
+
+        print('-----------------------------')
+
+        print('Ranking: Features, Euclidean')
+        print(rankEucFeat)
+
+        print('Ranking: Features, Cosine')
+        print(rankCosFeat)
+
+        print('Ranking: Features, Manhattan')
+        print(rankManFeat)
+
+        print('-----------------------------')
 
         print('Ranking: Metadata')
         print(rankMetadata)
@@ -104,14 +127,31 @@ def rankingSimilaridade(statsEuc, statsMan, statsCos, featEuc, featMan, featCos,
             if rankMetadata[l] in rankCosStats:
                 dcr[i] += 1
 
+            if rankMetadata[l] in rankEucFeat:
+                fer[i] += 1
+
+            if rankMetadata[l] in rankManFeat:
+                fmr[i] += 1
+
+            if rankMetadata[l] in rankCosFeat:
+                fcr[i] += 1
+
         der[i] = ((der[i] - 1) / 20) * 100
         dmr[i] = ((dmr[i] - 1) / 20) * 100
         dcr[i] = ((dcr[i] - 1) / 20) * 100
+
+        fer[i] = ((fer[i] - 1) / 20) * 100
+        fmr[i] = ((fmr[i] - 1) / 20) * 100
+        fcr[i] = ((fcr[i] - 1) / 20) * 100
         
     
     print('DER = ' + str(der))
     print('DMR = ' + str(dmr))
     print('DCR = ' + str(dcr))
+
+    print('FER = ' + str(fer))
+    print('FMR = ' + str(fmr))
+    print('FCR = ' + str(fcr))
 
         
 
